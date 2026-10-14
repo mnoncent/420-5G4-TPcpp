@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
-
+#include <iomanip>
+#include <sstream>
 #include "library.h"
 
 using namespace std;
@@ -238,4 +239,32 @@ void Library::displaySortedBooks(int sortType) {
         cout << sortedBooks[i]->toString() << "\n";
         cout << "-------------------------\n";
     }
+}
+
+//Generer automatiquement un ID utilisateur
+string Library::generateUserId() {
+    int maxId = 0;
+
+    for (auto& user : users) {
+        string id = user->getUserId();
+
+        if (id.substr(0, 3) == "USR") {
+            string number = id.substr(3);
+
+            if (!number.empty() &&
+                all_of(number.begin(), number.end(),
+                    [](char c) { return c >= '0' && c <= '9'; })) {
+
+                int currentId = stoi(number);
+
+                if (currentId > maxId) {
+                    maxId = currentId;
+                }
+            }
+        }
+    }
+
+    stringstream ss;
+    ss << "USR" << setw(3) << setfill('0') << (maxId + 1);
+    return ss.str();
 }
