@@ -33,6 +33,7 @@ void displayMenu() {
     cout << "11. Statistiques de la Bibliothèque\n";
     cout << "12. Sauvegarder les Données\n";
     cout << "13. Créer une Sauvegarde\n";
+    cout << "14. Afficher les Livres Tries\n";
     cout << "0.  Quitter\n";
     cout << "======================================================\n";
     cout << "Entrez votre choix : ";
@@ -244,6 +245,28 @@ int main(int argc, char* argv[]) {
             
             case 13: { // Create Backup
                 fileManager.createBackup();
+                pauseForInput();
+                break;
+            }
+
+            case 14: { // Affichage des livres tries
+                int sortType;
+
+                cout << "\n=== TRI DES LIVRES ===\n";
+                cout << "1. Trier par titre\n";
+                cout << "2. Trier par auteur\n";
+                cout << "Entrez votre choix : ";
+                cin >> sortType;
+
+                if (!(cin >> sortType)) {
+                    cout << "Choix invalide.\n";
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                } else {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    library.displaySortedBooks(sortType);
+                }
+
                 pauseForInput();
                 break;
             }

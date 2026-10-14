@@ -202,3 +202,40 @@ int Library::getAvailableBookCount() const {
         });
 }
 int Library::getCheckedOutBookCount() const { return getTotalBooks() - getAvailableBookCount(); }
+
+//Afficher les livres tries par titre ou par auteur
+void Library::displaySortedBooks(int sortType) {
+    vector<Book*> sortedBooks = getAllBooks();
+
+    if (sortedBooks.empty()) {
+        cout << "Aucun livre dans la bibliotheque.\n";
+        return;
+    }
+
+    if (sortType == 1) {
+        // Tri par titre
+        sort(sortedBooks.begin(), sortedBooks.end(),
+            [](Book* a, Book* b) {
+                return a->getTitle() < b->getTitle();
+            });
+    }
+    else if (sortType == 2) {
+        // Tri par auteur
+        sort(sortedBooks.begin(), sortedBooks.end(),
+            [](Book* a, Book* b) {
+                return a->getAuthor() < b->getAuthor();
+            });
+    }
+    else {
+        cout << "Type de tri invalide.\n";
+        return;
+    }
+
+    cout << "\n=== LIVRES TRIES ===\n";
+
+    for (size_t i = 0; i < sortedBooks.size(); ++i) {
+        cout << "\nLivre " << (i + 1) << " :\n";
+        cout << sortedBooks[i]->toString() << "\n";
+        cout << "-------------------------\n";
+    }
+}
