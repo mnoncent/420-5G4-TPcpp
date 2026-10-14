@@ -5,6 +5,7 @@
 
 #include "library.h"
 #include "filemanager.h"
+#include "journal.h"
 
 using namespace std;
 
@@ -82,6 +83,12 @@ int main(int argc, char* argv[]) {
         usersFile = (filesystem::path(dataDir) / "users.txt").string();
     }
 
+    string journalPath = dataDir.empty()
+        ? "journal.txt"
+        : (filesystem::path(dataDir) / "journal.txt").string();
+
+    Journal journal(journalPath);
+
     Library library;
     FileManager fileManager(booksFile, usersFile);
     
@@ -116,6 +123,7 @@ int main(int argc, char* argv[]) {
                     Book newBook(title, author, isbn);
                     library.addBook(newBook);
                     cout << "Livre ajouté avec succès !\n";
+                    journal.enregistrer("AJOUT LIVRE", newBook.toFileFormat());
                 }
                 pauseForInput();
                 break;
@@ -124,8 +132,18 @@ int main(int argc, char* argv[]) {
             case 2: { // Remove Book
                 string isbn = getInput("Entrez l'ISBN du livre à supprimer : ");
                 
+
+                //Recuperer les informations du livre avant sa suppression
+                Book* book = library.findBookByISBN(isbn);
+                string details = "";
+
+                if (book != nullptr) {
+                    details = book->toFileFormat();
+                }
+
                 if (library.removeBook(isbn)) {
                     cout << "Livre supprimé avec succès !\n";
+                    journal.enregistrer("SUPPRESSION LIVRE", details);
                 } else {
                     cout << "Livre non trouvé.\n";
                 }
@@ -205,6 +223,14 @@ int main(int argc, char* argv[]) {
                 
                 if (library.checkOutBook(isbn, userId)) {
                     cout << "Livre emprunté avec succès !\n";
+
+                    // Recuperer le livre apres l'emprunt
+                    Book* book = library.findBookByISBN(isbn);
+
+                    // Enregistrer l'emprunt dans le journal
+                    if (book != nullptr) {
+                        journal.enregistrer("EMPRUNT", book->toFileFormat());
+                    }
                 } else {
                     cout << "Erreur : Impossible d'emprunter le livre. Vérifiez l'ISBN, l'ID utilisateur et la disponibilité du livre.\n";
                 }
@@ -217,6 +243,12 @@ int main(int argc, char* argv[]) {
                 
                 if (library.returnBook(isbn)) {
                     cout << "Livre retourné avec succès !\n";
+
+                    Book* book = library.findBookByISBN(isbn);
+
+                    if (book) {
+                        journal.enregistrer("RETOUR", book->toFileFormat());
+                    }
                 } else {
                     cout << "Erreur : Impossible de retourner le livre. Vérifiez l'ISBN et que le livre est bien emprunté.\n";
                 }
