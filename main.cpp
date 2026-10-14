@@ -73,15 +73,22 @@ int main(int argc, char* argv[]) {
 
     string booksFile;
     string usersFile;
-    if (!dataDir.empty()) {
-        if (!filesystem::is_directory(dataDir)) {
-            cerr << "Erreur : le répertoire " << dataDir << " n'existe pas.\n";
-            printUsage(argv[0]);
-            return 1;
-        }
-        booksFile = (filesystem::path(dataDir) / "books.txt").string();
-        usersFile = (filesystem::path(dataDir) / "users.txt").string();
+
+    // Utiliser le repertoire courant si aucun repertoire n'est specifie
+    if (dataDir.empty()) {
+        dataDir = ".";
     }
+
+    // Verifier que le repertoire existe
+    if (!filesystem::is_directory(dataDir)) {
+        cerr << "Erreur : le répertoire " << dataDir << " n'existe pas.\n";
+        printUsage(argv[0]);
+        return 1;
+    }
+
+// Definir les chemins des fichiers
+booksFile = (filesystem::path(dataDir) / "books.txt").string();
+usersFile = (filesystem::path(dataDir) / "users.txt").string();
 
     string journalPath = dataDir.empty()
         ? "journal.txt"
@@ -289,7 +296,6 @@ int main(int argc, char* argv[]) {
                 cout << "1. Trier par titre\n";
                 cout << "2. Trier par auteur\n";
                 cout << "Entrez votre choix : ";
-                cin >> sortType;
 
                 if (!(cin >> sortType)) {
                     cout << "Choix invalide.\n";
@@ -320,7 +326,13 @@ int main(int argc, char* argv[]) {
             }
             case 0: // Exit
                 cout << "Sauvegarde des données avant la fermeture...\n";
-                fileManager.saveLibraryData(library);
+
+                if (fileManager.saveLibraryData(library)) {
+                    cout << "Données sauvegardées avec succès !\n";
+                } else {
+                    cerr << "Erreur : impossible de sauvegarder les données.\n";
+                }
+
                 cout << "Merci d'avoir utilisé le Système de Gestion de Bibliothèque Personnelle !\n";
                 running = false;
                 break;
